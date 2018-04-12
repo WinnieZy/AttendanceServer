@@ -70,7 +70,7 @@ class DbOperator{
     
     public function get_weekday(){
         $weekarray=array("日","一","二","三","四","五","六"); //先定义一个数组
-        echo "星期".$weekarray[date("w")];
+//        echo "星期".$weekarray[date("w")];
         return $weekarray[date("w")];
     }
 

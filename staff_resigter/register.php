@@ -18,8 +18,8 @@ if($row){
     echo "<script type='text/javascript'>alert('注册失败！该员工已存在！');location.href='staff_register.html';</script>";
     exit();
 }else{
-    $entryDate = DbOperator::getInstance()->get_today();
-    $result = DbOperator::getInstance()->query("INSERT INTO staff(staff_name,IDcard,leader,entry_date) VALUES ('$staffName','$IDcard','默认领导','$entryDate')");
+    $today = DbOperator::getInstance()->get_today();
+    $result = DbOperator::getInstance()->query("INSERT INTO staff(staff_name,IDcard,leader,entry_date) VALUES ('$staffName','$IDcard','默认领导','$today')");
     if($result){
         $result_staff = DbOperator::getInstance()->query("SELECT * FROM staff where IDcard = '$IDcard'");
         $row = mysql_fetch_assoc($result_staff);
@@ -27,7 +27,7 @@ if($row){
             $staff_id = $row['staff_id'];
             $username = $staffName.'_'.$staff_id;
             $password = substr($IDcard, 12,6);
-            $result = DbOperator::getInstance()->query("INSERT INTO user(username,password,staff_id,isOnline) VALUES ('$username','$password',$staff_id,false)");
+            $result = DbOperator::getInstance()->query("INSERT INTO user(username,password,staff_id) VALUES ('$username','$password',$staff_id)");
             if($result){
                 $result_user = DbOperator::getInstance()->query("SELECT * FROM user where staff_id = '$staff_id'");
                 $row = mysql_fetch_assoc($result_user);

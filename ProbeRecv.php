@@ -6,13 +6,6 @@
  * and open the template in the editor.
  */
 require ('./DbOperator.php');
-//$arr = array(
-//    'id' => 1,
-//    'name' => 'zy'
-//);
-//
-//Response::json(200,'success',$arr);
-
 try {
     $mysql_conn = DbOperator::getInstance()->connect();
 } catch (Exception $ex) {
@@ -20,20 +13,11 @@ try {
 }
 set_time_limit(0);
 //服务器信息
-$server = 'udp://192.168.31.152:6006';
+$server = 'udp://192.168.191.5:6006';
 $socket = stream_socket_server($server, $errno, $errstr, STREAM_SERVER_BIND);
 if (!$socket) {
     die("$errstr ($errno)");
 }
-
-//<!--JS 页面自动刷新 -->
-//echo ("<script type=\"text/javascript\">");
-//echo ("function fresh_page()");    
-//echo ("{");
-//echo ("window.location.reload();");
-//echo ("}"); 
-//echo ("setTimeout('fresh_page()',1000);");      
-//echo ("</script>");
 do {
     //接收客户端发来的信息
     $inMsg = stream_socket_recvfrom($socket, 1024, 0, $peer);
@@ -43,8 +27,10 @@ do {
             continue;
         }
         $mac = substr($arr, 0, 17);
-        $entryDate = DbOperator::getInstance()->get_today();
-        $result_user = DbOperator::getInstance()->query("SELECT * FROM user where mac = '$mac'");
+        $today = DbOperator::getInstance()->get_today();
+        $weekday = DbOperator::getInstance()->get_weekday();
+        $date = $today.'('.$weekday.')';
+        $result_user = DbOperator::getInstance()->query("SELECT user_id FROM user where mac = '$mac'");
         echo  '$result_user:'. $result_user . "<br />";
         if($result_user){
             //在员工表中找到了对应mac的员工，有记录的mac才用进行下一步判断，无则直接忽略
@@ -52,36 +38,34 @@ do {
             if($row){//有
                 //输出员工信息
                 do {
-    //                $staff = new Staff($row['name'], $row['staff_id'], $row['tel_num'], $row['email'], $row['mac']);
-    //                $staff->__toString();
                     echo json_encode($row) .'<br/>';
                 }while ($row = mysql_fetch_assoc($result_user));
                 //查询及更新该员工mac的出现时间
-                $result_mac_date = DbOperator::getInstance()->query("SELECT * FROM mac where mac = '$mac' AND date = '$entryDate'");
+                $result_mac_date = DbOperator::getInstance()->query("SELECT id FROM mac where mac = '$mac' AND date = '$date'");
                 if ($result_mac_date) {//如果查询到该mac今天有记录，则更新last_time
                     $row = mysql_fetch_assoc($result_mac_date);
-                    if($row){//有
+                    if($row){//今天已有mac记录
                         do {
                             echo json_encode($row) .'<br/>';
                         }while ($row = mysql_fetch_assoc($result_mac_date));
                         $time = DbOperator::getInstance()->get_now();
                         $ret = DbOperator::getInstance()->query("UPDATE mac SET last_time = '$time'
-                        WHERE mac = '$mac' AND date = '$entryDate'");
+                        WHERE mac = '$mac' AND date = '$date'");
                         echo  'today mac found and update:'. $ret . "<br />";
-                    }else {//该mac有记录但并非今天，则直接插入当天的记录条目
-                        $result_mac = DbOperator::getInstance()->query("SELECT * FROM mac where mac = '$mac'");
-                        if($result_mac){
-                            $row = mysql_fetch_assoc($result_mac);
-                            if($row){
-                                do{
-                                    echo json_encode($row) .'<br/>';
-                                }while ($row = mysql_fetch_assoc($result_mac));
+                    }else {//该mac没有今天的记录，则直接插入
+//                        $result_mac = DbOperator::getInstance()->query("SELECT id FROM mac where mac = '$mac' limit 0,1 ");
+//                        if($result_mac){
+//                            $row = mysql_fetch_assoc($result_mac);
+//                            if($row){//该mac有记录但并非今天，则直接插入当天的记录条目
+//                                do{
+//                                    echo json_encode($row) .'<br/>';
+//                                }while ($row = mysql_fetch_assoc($result_mac));
                                 $time = DbOperator::getInstance()->get_now();
                                 $ret = DbOperator::getInstance()->query("INSERT INTO mac (mac, date, first_time, last_time) 
-                                VALUES ('$mac', '$entryDate', '$time','$time')");
+                                VALUES ('$mac', '$date', '$time','$time')");
                                 echo  'today mac not found and insert:'.$ret . "<br />";
-                            }
-                        }//该mac无记录时不操作
+//                            }
+//                        }//该mac无记录时不操作
         //                $ret = DbOperator::getInstance()->query("INSERT INTO mac (mac, date, first_time, last_time) 
         //                VALUES ('$mac', '$date', '$time','$time')");
         //                echo $res ."<br />";
