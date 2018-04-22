@@ -13,7 +13,7 @@ try {
 }
 set_time_limit(0);
 //服务器信息
-$server = 'udp://192.168.191.5:6006';
+$server = 'udp://192.168.23.2:6006';
 $socket = stream_socket_server($server, $errno, $errstr, STREAM_SERVER_BIND);
 if (!$socket) {
     die("$errstr ($errno)");

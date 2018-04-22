@@ -19,7 +19,7 @@ if($row){
     exit();
 }else{
     $today = DbOperator::getInstance()->get_today();
-    $result = DbOperator::getInstance()->query("INSERT INTO staff(staff_name,IDcard,leader,entry_date) VALUES ('$staffName','$IDcard','默认领导','$today')");
+    $result = DbOperator::getInstance()->query("INSERT INTO staff(staff_name,IDcard,approval_auth,leader_id,leader,entry_date) VALUES ('$staffName','$IDcard',false,9,'默认领导','$today')");
     if($result){
         $result_staff = DbOperator::getInstance()->query("SELECT * FROM staff where IDcard = '$IDcard'");
         $row = mysql_fetch_assoc($result_staff);
