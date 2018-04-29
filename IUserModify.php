@@ -36,7 +36,11 @@ if($password != NULL && "" != $password) {
 }
 $result_user = DbOperator::getInstance()->query($sql_user);
 if($result_user){
-    return Response::json(200, '修改成功');
+    if(mysql_affected_rows() == 1){
+        return Response::json(200, '修改成功');
+    }else {
+        return Response::json(400, '修改失败，请稍后重试');
+    }
 }else {
     return Response::json(400, '修改失败，请稍后重试');
 }

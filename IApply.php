@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 /**
- * 查找apply数据接口
+ * 查找apply数据更新接口
  */
 require './Response.php';
 require './DbOperator.php';
@@ -25,7 +25,8 @@ try {
 } catch (Exception $ex) {
     return Response::json(403, '数据库连接失败');
 }
-$sql = "select * from apply where apply_id > '$apply_id' and (staff_id = '$staff_id' or leader_id = '$staff_id')";
+//select * from apply where apply_id > '$apply_id' and (staff_id = '$staff_id' or leader_id = '$staff_id')
+$sql = "select * from apply where apply_id > '$apply_id' and (staff_id = '$staff_id' or (leader_id = '$staff_id' and result = 0))";
 $result = DbOperator::getInstance()->query($sql);
 if($result){
     $row = mysql_fetch_assoc($result);
